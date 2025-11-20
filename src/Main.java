@@ -1,95 +1,51 @@
-/**
- * ========================================
- * JUEGO DE PREGUNTADOS
- * ========================================
- * Autor: Jessid alexander agudelo herrera
- * Código: 202478460
- * 
- * DESCRIPCIÓN:
- * Juego de preguntas y respuestas con múltiples categorías.
- * El jugador debe responder preguntas para acumular puntos.
- * 
- * CARACTERÍSTICAS:
- * - 5 ventanas de interfaz gráfica
- * - Sistema de puntos
- * - Sistema de pistas (costo: 5 puntos)
- * - 4 categorías con múltiples preguntas
- * - Programación Orientada a Objetos (POO)
- * - Programación Orientada a Eventos (POE)
- * ========================================
- */
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
 import java.util.Collections;
+import javax.swing.Timer;
 
-/**
- * Clase principal que inicia la aplicación
- */
 public class Main {
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> new JuegoPreguntados());
     }
 }
 
-/**
- * ========================================
- * CLASE: JuegoPreguntados
- * ========================================
- * Controlador principal del juego
- * 
- * RESPONSABILIDADES:
- * - Gestionar el flujo entre ventanas
- * - Controlar el estado del juego
- * - Manejar la lógica de las 5 ventanas
- * 
- * ATRIBUTOS:
- * - frame: Ventana principal del juego
- * - jugador: Objeto que representa al jugador actual
- * - banco: Banco de preguntas
- * - indicePreguntaActual: Índice de la pregunta actual
- * - pistaUsada: Bandera para controlar si se usó pista
- * 
- * MÉTODOS:
- * - GUI_inicio(): Pantalla de bienvenida
- * - GUI_ingresoNombre(): Captura nombre del jugador
- * - GUI_seleccionCategoria(): Selección de categoría
- * - GUI_pregunta(): Muestra pregunta y opciones
- * - GUI_resultado(): Muestra resultado final
- * ========================================
- */
 class JuegoPreguntados {
     private JFrame frame;
     private Jugador jugador;
     private BancoPregunta banco;
     private int indicePreguntaActual;
     private boolean pistaUsada;
+    private Timer temporizador;
+    private int tiempoRestante;
+    private boolean pausado;
+    private ArrayList<Administrador> administradores;
     
-    /**
-     * Constructor: Inicializa el juego y muestra la pantalla de inicio
-     */
     public JuegoPreguntados() {
         banco = new BancoPregunta();
         pistaUsada = false;
+        pausado = false;
+        administradores = new ArrayList<>();
+        // Administrador por defecto
+        administradores.add(new Administrador("root", "1234"));
         GUI_inicio();
     }
-    
-    /**
-     * VENTANA 1: Pantalla de Inicio
-     * Muestra el título del juego, información del estudiante y botón para iniciar
-     */
+
     private void GUI_inicio() {
+        if (frame != null) {
+            frame.dispose();
+        }
+        
         frame = new JFrame("Preguntados");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(800, 800);
+        frame.setSize(500, 450);
         frame.setLocationRelativeTo(null);
         
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
         panel.setBackground(new Color(52, 152, 219));
-        panel.setBorder(BorderFactory.createEmptyBorder(50, 50, 50, 50));
+        panel.setBorder(BorderFactory.createEmptyBorder(40, 50, 40, 50));
         
         // Título del juego
         JLabel titulo = new JLabel("¡Preguntados  :D  ¡");
@@ -97,9 +53,9 @@ class JuegoPreguntados {
         titulo.setForeground(Color.WHITE);
         titulo.setAlignmentX(Component.CENTER_ALIGNMENT);
         
-        panel.add(Box.createRigidArea(new Dimension(0, 30)));
+        panel.add(Box.createRigidArea(new Dimension(0, 20)));
         panel.add(titulo);
-        panel.add(Box.createRigidArea(new Dimension(0, 50)));
+        panel.add(Box.createRigidArea(new Dimension(0, 30)));
         
         // Nombre del estudiante
         JLabel nombre = new JLabel("Jessid alexander agudelo herrera");
@@ -117,33 +73,465 @@ class JuegoPreguntados {
         codigo.setAlignmentX(Component.CENTER_ALIGNMENT);
         panel.add(codigo);
         
-        panel.add(Box.createRigidArea(new Dimension(0, 60)));
+        panel.add(Box.createRigidArea(new Dimension(0, 40)));
         
-        // Botón iniciar (POE - Evento ActionListener)
+        // Botón iniciar juego
         JButton btnIniciar = new JButton("INICIAR JUEGO");
         btnIniciar.setFont(new Font("Arial", Font.BOLD, 16));
         btnIniciar.setAlignmentX(Component.CENTER_ALIGNMENT);
+        btnIniciar.setMaximumSize(new Dimension(250, 40));
         btnIniciar.setBackground(new Color(46, 204, 113));
         btnIniciar.setForeground(Color.WHITE);
         btnIniciar.setFocusPainted(false);
-        btnIniciar.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                GUI_ingresoNombre();
-            }
-        });
+        btnIniciar.addActionListener(e -> GUI_ingresoNombre());
         
         panel.add(btnIniciar);
+        panel.add(Box.createRigidArea(new Dimension(0, 15)));
+        
+        // Botón administrador
+        JButton btnAdmin = new JButton("👤 ADMINISTRADOR");
+        btnAdmin.setFont(new Font("Arial", Font.BOLD, 14));
+        btnAdmin.setAlignmentX(Component.CENTER_ALIGNMENT);
+        btnAdmin.setMaximumSize(new Dimension(250, 40));
+        btnAdmin.setBackground(new Color(231, 76, 60));
+        btnAdmin.setForeground(Color.WHITE);
+        btnAdmin.setFocusPainted(false);
+        btnAdmin.addActionListener(e -> GUI_loginAdmin());
+        
+        panel.add(btnAdmin);
         
         frame.add(panel);
         frame.setVisible(true);
     }
     
-    /**
-     * VENTANA 2: Ingreso de Nombre
-     * Permite al jugador ingresar su nombre
-     * Valida que el nombre no esté vacío
-     */
+    
+    private void GUI_loginAdmin() {
+        frame.getContentPane().removeAll();
+        
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        panel.setBackground(new Color(231, 76, 60));
+        panel.setBorder(BorderFactory.createEmptyBorder(50, 50, 50, 50));
+        
+        JLabel titulo = new JLabel("Panel de Administrador");
+        titulo.setFont(new Font("Arial", Font.BOLD, 28));
+        titulo.setForeground(Color.WHITE);
+        titulo.setAlignmentX(Component.CENTER_ALIGNMENT);
+        panel.add(titulo);
+        panel.add(Box.createRigidArea(new Dimension(0, 40)));
+        
+        // Label Username
+        JLabel lblUsuario = new JLabel("Username:");
+        lblUsuario.setFont(new Font("Arial", Font.BOLD, 16));
+        lblUsuario.setForeground(Color.WHITE);
+        lblUsuario.setAlignmentX(Component.CENTER_ALIGNMENT);
+        panel.add(lblUsuario);
+        panel.add(Box.createRigidArea(new Dimension(0, 8)));
+        
+        // Input Username
+        JTextField txtUsuario = new JTextField(15);
+        txtUsuario.setFont(new Font("Arial", Font.PLAIN, 14));
+        txtUsuario.setMaximumSize(new Dimension(280, 35));
+        txtUsuario.setAlignmentX(Component.CENTER_ALIGNMENT);
+        txtUsuario.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(new Color(189, 195, 199), 2),
+            BorderFactory.createEmptyBorder(5, 10, 5, 10)
+        ));
+        panel.add(txtUsuario);
+        panel.add(Box.createRigidArea(new Dimension(0, 20)));
+        
+        // Label Password
+        JLabel lblPassword = new JLabel("Password:");
+        lblPassword.setFont(new Font("Arial", Font.BOLD, 16));
+        lblPassword.setForeground(Color.WHITE);
+        lblPassword.setAlignmentX(Component.CENTER_ALIGNMENT);
+        panel.add(lblPassword);
+        panel.add(Box.createRigidArea(new Dimension(0, 8)));
+        
+        // Input Password
+        JPasswordField txtPassword = new JPasswordField(15);
+        txtPassword.setFont(new Font("Arial", Font.PLAIN, 14));
+        txtPassword.setMaximumSize(new Dimension(280, 35));
+        txtPassword.setAlignmentX(Component.CENTER_ALIGNMENT);
+        txtPassword.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(new Color(189, 195, 199), 2),
+            BorderFactory.createEmptyBorder(5, 10, 5, 10)
+        ));
+        panel.add(txtPassword);
+        panel.add(Box.createRigidArea(new Dimension(0, 30)));
+        
+        // Contador de intentos
+        final int[] intentos = {3};
+        
+        // Botón ENTRAR
+        JButton btnEntrar = new JButton("ENTRAR");
+        btnEntrar.setFont(new Font("Arial", Font.BOLD, 16));
+        btnEntrar.setAlignmentX(Component.CENTER_ALIGNMENT);
+        btnEntrar.setMaximumSize(new Dimension(280, 45));
+        btnEntrar.setBackground(new Color(46, 204, 113));
+        btnEntrar.setForeground(Color.WHITE);
+        btnEntrar.setFocusPainted(false);
+        btnEntrar.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
+        btnEntrar.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        
+        // Efecto hover en botón ENTRAR
+        btnEntrar.addMouseListener(new MouseAdapter() {
+            public void mouseEntered(MouseEvent e) {
+                btnEntrar.setBackground(new Color(39, 174, 96));
+            }
+            public void mouseExited(MouseEvent e) {
+                btnEntrar.setBackground(new Color(46, 204, 113));
+            }
+        });
+        
+        btnEntrar.addActionListener(e -> {
+            String usuario = txtUsuario.getText().trim();
+            String password = new String(txtPassword.getPassword());
+            
+            if (usuario.isEmpty() || password.isEmpty()) {
+                JOptionPane.showMessageDialog(frame, 
+                    "Por favor completa todos los campos",
+                    "Campos vacíos", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            
+            boolean autenticado = false;
+            for (Administrador admin : administradores) {
+                if (admin.autenticar(usuario, password)) {
+                    autenticado = true;
+                    break;
+                }
+            }
+            
+            if (autenticado) {
+                JOptionPane.showMessageDialog(frame, 
+                    "¡Bienvenido, " + usuario + "!",
+                    "Acceso Concedido", JOptionPane.INFORMATION_MESSAGE);
+                GUI_panelAdmin();
+            } else {
+                intentos[0]--;
+                if (intentos[0] > 0) {
+                    JOptionPane.showMessageDialog(frame, 
+                        "Credenciales incorrectas\n\nIntentos restantes: " + intentos[0],
+                        "❌ Error de Autenticación", JOptionPane.ERROR_MESSAGE);
+                    txtPassword.setText("");
+                    txtUsuario.requestFocus();
+                } else {
+                    JOptionPane.showMessageDialog(frame, 
+                        "Ups!! . diste los datos mal !!!!",
+                        "🚫 Acceso Denegado", JOptionPane.ERROR_MESSAGE);
+                    System.out.println("=================================");
+                    System.out.println("❌ ACCESO DENEGADO");
+                    System.out.println("Usuario intentado: " + usuario);
+                    System.out.println("Intentos agotados: 3/3");
+                    System.out.println("=================================");
+                    System.exit(0);
+                }
+            }
+        });
+        
+        panel.add(btnEntrar);
+        panel.add(Box.createRigidArea(new Dimension(0, 15)));
+        
+        // Botón CREAR ADMINISTRADOR
+        JButton btnCrear = new JButton("CREAR ADMINISTRADOR");
+        btnCrear.setFont(new Font("Arial", Font.BOLD, 14));
+        btnCrear.setAlignmentX(Component.CENTER_ALIGNMENT);
+        btnCrear.setMaximumSize(new Dimension(280, 40));
+        btnCrear.setBackground(new Color(52, 152, 219));
+        btnCrear.setForeground(Color.WHITE);
+        btnCrear.setFocusPainted(false);
+        btnCrear.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        
+        btnCrear.addMouseListener(new MouseAdapter() {
+            public void mouseEntered(MouseEvent e) {
+                btnCrear.setBackground(new Color(41, 128, 185));
+            }
+            public void mouseExited(MouseEvent e) {
+                btnCrear.setBackground(new Color(52, 152, 219));
+            }
+        });
+        
+        btnCrear.addActionListener(e -> GUI_crearAdmin());
+        
+        panel.add(btnCrear);
+        panel.add(Box.createRigidArea(new Dimension(0, 10)));
+        
+        // Botón VOLVER
+        JButton btnVolver = new JButton("⬅ VOLVER");
+        btnVolver.setFont(new Font("Arial", Font.BOLD, 12));
+        btnVolver.setAlignmentX(Component.CENTER_ALIGNMENT);
+        btnVolver.setMaximumSize(new Dimension(280, 35));
+        btnVolver.setBackground(new Color(149, 165, 166));
+        btnVolver.setForeground(Color.WHITE);
+        btnVolver.setFocusPainted(false);
+        btnVolver.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        
+        btnVolver.addMouseListener(new MouseAdapter() {
+            public void mouseEntered(MouseEvent e) {
+                btnVolver.setBackground(new Color(127, 140, 141));
+            }
+            public void mouseExited(MouseEvent e) {
+                btnVolver.setBackground(new Color(149, 165, 166));
+            }
+        });
+        
+        btnVolver.addActionListener(e -> GUI_inicio());
+        
+        panel.add(btnVolver);
+        
+        frame.add(panel);
+        frame.revalidate();
+        frame.repaint();
+    }
+
+    private void GUI_crearAdmin() {
+        frame.getContentPane().removeAll();
+        
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        panel.setBackground(new Color(155, 89, 182));
+        panel.setBorder(BorderFactory.createEmptyBorder(30, 40, 30, 40));
+        
+        JLabel titulo = new JLabel("Preguntas de Seguridad");
+        titulo.setFont(new Font("Arial", Font.BOLD, 24));
+        titulo.setForeground(Color.WHITE);
+        titulo.setAlignmentX(Component.CENTER_ALIGNMENT);
+        panel.add(titulo);
+        panel.add(Box.createRigidArea(new Dimension(0, 20)));
+        
+        JLabel info = new JLabel("Responde al menos 2 de 3 preguntas correctamente");
+        info.setFont(new Font("Arial", Font.PLAIN, 12));
+        info.setForeground(new Color(255, 235, 59));
+        info.setAlignmentX(Component.CENTER_ALIGNMENT);
+        panel.add(info);
+        panel.add(Box.createRigidArea(new Dimension(0, 25)));
+        
+        // Pregunta 1
+        JLabel lblP1 = new JLabel("1. ¿Cómo se llama el creador del juego?");
+        lblP1.setForeground(Color.WHITE);
+        lblP1.setAlignmentX(Component.CENTER_ALIGNMENT);
+        panel.add(lblP1);
+        
+        JTextField txtP1 = new JTextField(20);
+        txtP1.setMaximumSize(new Dimension(300, 30));
+        txtP1.setAlignmentX(Component.CENTER_ALIGNMENT);
+        panel.add(txtP1);
+        panel.add(Box.createRigidArea(new Dimension(0, 15)));
+        
+        // Pregunta 2
+        JLabel lblP2 = new JLabel("2. ¿Cuál es el nombre del perro del creador?");
+        lblP2.setForeground(Color.WHITE);
+        lblP2.setAlignmentX(Component.CENTER_ALIGNMENT);
+        panel.add(lblP2);
+        
+        JTextField txtP2 = new JTextField(20);
+        txtP2.setMaximumSize(new Dimension(300, 30));
+        txtP2.setAlignmentX(Component.CENTER_ALIGNMENT);
+        panel.add(txtP2);
+        panel.add(Box.createRigidArea(new Dimension(0, 15)));
+        
+        // Pregunta 3
+        JLabel lblP3 = new JLabel("3. ¿Cuál es la edad del creador del juego?");
+        lblP3.setForeground(Color.WHITE);
+        lblP3.setAlignmentX(Component.CENTER_ALIGNMENT);
+        panel.add(lblP3);
+        
+        JTextField txtP3 = new JTextField(20);
+        txtP3.setMaximumSize(new Dimension(300, 30));
+        txtP3.setAlignmentX(Component.CENTER_ALIGNMENT);
+        panel.add(txtP3);
+        panel.add(Box.createRigidArea(new Dimension(0, 25)));
+        
+        JButton btnVerificar = new JButton("VERIFICAR");
+        btnVerificar.setFont(new Font("Arial", Font.BOLD, 14));
+        btnVerificar.setAlignmentX(Component.CENTER_ALIGNMENT);
+        btnVerificar.setBackground(new Color(46, 204, 113));
+        btnVerificar.setForeground(Color.WHITE);
+        btnVerificar.setFocusPainted(false);
+        btnVerificar.addActionListener(e -> {
+            int correctas = 0;
+            
+            // Verificar respuestas (case-insensitive)
+            if (txtP1.getText().trim().equalsIgnoreCase("Alexander agudelo")) correctas++;
+            if (txtP2.getText().trim().equalsIgnoreCase("thanos")) correctas++;
+            if (txtP3.getText().trim().equals("21")) correctas++;
+            
+            if (correctas >= 2) {
+                // Puede crear administrador
+                String usuario = JOptionPane.showInputDialog(frame, "Ingresa el nombre de usuario:");
+                if (usuario != null && !usuario.trim().isEmpty()) {
+                    String password = JOptionPane.showInputDialog(frame, "Ingresa la contraseña:");
+                    if (password != null && !password.trim().isEmpty()) {
+                        administradores.add(new Administrador(usuario, password));
+                        JOptionPane.showMessageDialog(frame, 
+                            "¡Administrador creado exitosamente!",
+                            "Éxito", JOptionPane.INFORMATION_MESSAGE);
+                        GUI_loginAdmin();
+                    }
+                }
+            } else {
+                // No cumple condiciones, vuelve al inicio sin mensaje
+                GUI_inicio();
+            }
+        });
+        
+        panel.add(btnVerificar);
+        
+        frame.revalidate();
+        frame.repaint();
+    }
+    
+    private void GUI_panelAdmin() {
+        frame.getContentPane().removeAll();
+        
+        JPanel panel = new JPanel(new BorderLayout(10, 10));
+        panel.setBackground(new Color(44, 62, 80));
+        panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        
+        JLabel titulo = new JLabel("Panel de Administración - CRUD Preguntas");
+        titulo.setFont(new Font("Arial", Font.BOLD, 20));
+        titulo.setForeground(Color.WHITE);
+        titulo.setHorizontalAlignment(SwingConstants.CENTER);
+        panel.add(titulo, BorderLayout.NORTH);
+        
+        // Panel central con lista de preguntas
+        JPanel panelCentro = new JPanel(new BorderLayout());
+        panelCentro.setBackground(new Color(44, 62, 80));
+        
+        DefaultListModel<String> modeloLista = new DefaultListModel<>();
+        JList<String> listPreguntas = new JList<>(modeloLista);
+        listPreguntas.setBackground(new Color(236, 240, 241));
+        
+        JScrollPane scrollPane = new JScrollPane(listPreguntas);
+        panelCentro.add(scrollPane, BorderLayout.CENTER);
+        
+        // Panel de botones
+        JPanel panelBotones = new JPanel();
+        panelBotones.setLayout(new GridLayout(5, 1, 10, 10));
+        panelBotones.setBackground(new Color(44, 62, 80));
+        
+        JButton btnVer = new JButton("VER PREGUNTAS");
+        JButton btnAgregar = new JButton("AGREGAR PREGUNTA");
+        JButton btnModificar = new JButton("MODIFICAR PREGUNTA");
+        JButton btnEliminar = new JButton("ELIMINAR PREGUNTA");
+        JButton btnVolver = new JButton("VOLVER");
+        
+        // Estilizar botones
+        JButton[] botones = {btnVer, btnAgregar, btnModificar, btnEliminar, btnVolver};
+        for (JButton btn : botones) {
+            btn.setFont(new Font("Arial", Font.BOLD, 12));
+            btn.setForeground(Color.WHITE);
+            btn.setFocusPainted(false);
+        }
+        
+        btnVer.setBackground(new Color(52, 152, 219));
+        btnAgregar.setBackground(new Color(46, 204, 113));
+        btnModificar.setBackground(new Color(241, 196, 15));
+        btnEliminar.setBackground(new Color(231, 76, 60));
+        btnVolver.setBackground(new Color(149, 165, 166));
+        
+        // Eventos de botones
+        btnVer.addActionListener(e -> {
+            modeloLista.clear();
+            String categoria = JOptionPane.showInputDialog(frame, 
+                "Ingresa la categoría (Ciencia, Historia, Deportes, Geografía):");
+            if (categoria != null) {
+                banco.setCategoria(categoria);
+                ArrayList<Pregunta> preguntas = banco.getPreguntas();
+                for (int i = 0; i < preguntas.size(); i++) {
+                    modeloLista.addElement((i + 1) + ". " + preguntas.get(i).getTexto());
+                }
+            }
+        });
+        
+        btnAgregar.addActionListener(e -> {
+            String categoria = JOptionPane.showInputDialog(frame, 
+                "Categoría (Ciencia, Historia, Deportes, Geografía):");
+            if (categoria == null) return;
+            
+            String texto = JOptionPane.showInputDialog(frame, "Texto de la pregunta:");
+            if (texto == null) return;
+            
+            String op1 = JOptionPane.showInputDialog(frame, "Opción 1:");
+            String op2 = JOptionPane.showInputDialog(frame, "Opción 2:");
+            String op3 = JOptionPane.showInputDialog(frame, "Opción 3:");
+            String op4 = JOptionPane.showInputDialog(frame, "Opción 4:");
+            
+            String correcta = JOptionPane.showInputDialog(frame, "Respuesta correcta:");
+            String pista = JOptionPane.showInputDialog(frame, "Pista:");
+            
+            if (texto != null && op1 != null && op2 != null && op3 != null && 
+                op4 != null && correcta != null && pista != null) {
+                banco.agregarPregunta(categoria, texto, 
+                    new String[]{op1, op2, op3, op4}, correcta, pista);
+                JOptionPane.showMessageDialog(frame, "¡Pregunta agregada!");
+            }
+        });
+        
+        btnModificar.addActionListener(e -> {
+            String categoria = JOptionPane.showInputDialog(frame, 
+                "Categoría de la pregunta:");
+            if (categoria == null) return;
+            
+            banco.setCategoria(categoria);
+            String indiceStr = JOptionPane.showInputDialog(frame, 
+                "Número de pregunta a modificar (1-" + banco.getPreguntas().size() + "):");
+            
+            if (indiceStr != null) {
+                try {
+                    int indice = Integer.parseInt(indiceStr) - 1;
+                    Pregunta p = banco.getPreguntas().get(indice);
+                    
+                    String nuevoTexto = JOptionPane.showInputDialog(frame, 
+                        "Nuevo texto:", p.getTexto());
+                    if (nuevoTexto != null && !nuevoTexto.trim().isEmpty()) {
+                        // Aquí iría la lógica de modificación completa
+                        JOptionPane.showMessageDialog(frame, "Función de modificación disponible");
+                    }
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(frame, "Índice inválido");
+                }
+            }
+        });
+        
+        btnEliminar.addActionListener(e -> {
+            String categoria = JOptionPane.showInputDialog(frame, 
+                "Categoría de la pregunta:");
+            if (categoria == null) return;
+            
+            banco.setCategoria(categoria);
+            String indiceStr = JOptionPane.showInputDialog(frame, 
+                "Número de pregunta a eliminar (1-" + banco.getPreguntas().size() + "):");
+            
+            if (indiceStr != null) {
+                try {
+                    int indice = Integer.parseInt(indiceStr) - 1;
+                    banco.eliminarPregunta(indice);
+                    JOptionPane.showMessageDialog(frame, "¡Pregunta eliminada!");
+                    modeloLista.clear();
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(frame, "Error al eliminar");
+                }
+            }
+        });
+        
+        btnVolver.addActionListener(e -> GUI_inicio());
+        
+        panelBotones.add(btnVer);
+        panelBotones.add(btnAgregar);
+        panelBotones.add(btnModificar);
+        panelBotones.add(btnEliminar);
+        panelBotones.add(btnVolver);
+        
+        panel.add(panelCentro, BorderLayout.CENTER);
+        panel.add(panelBotones, BorderLayout.EAST);
+        
+        frame.add(panel);
+        frame.revalidate();
+        frame.repaint();
+    }
+    
     private void GUI_ingresoNombre() {
         frame.getContentPane().removeAll();
         
@@ -168,24 +556,20 @@ class JuegoPreguntados {
         
         panel.add(Box.createRigidArea(new Dimension(0, 30)));
         
-        // Botón continuar con validación (POE)
         JButton btnContinuar = new JButton("CONTINUAR");
         btnContinuar.setFont(new Font("Arial", Font.BOLD, 14));
         btnContinuar.setAlignmentX(Component.CENTER_ALIGNMENT);
         btnContinuar.setBackground(new Color(46, 204, 113));
         btnContinuar.setForeground(Color.WHITE);
         btnContinuar.setFocusPainted(false);
-        btnContinuar.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String nombre = txtNombre.getText().trim();
-                if (nombre.isEmpty()) {
-                    JOptionPane.showMessageDialog(frame, "Por favor ingresa tu nombre", 
-                        "Error", JOptionPane.ERROR_MESSAGE);
-                } else {
-                    jugador = new Jugador(nombre);
-                    GUI_seleccionCategoria();
-                }
+        btnContinuar.addActionListener(e -> {
+            String nombre = txtNombre.getText().trim();
+            if (nombre.isEmpty()) {
+                JOptionPane.showMessageDialog(frame, "Por favor ingresa tu nombre", 
+                    "Error", JOptionPane.ERROR_MESSAGE);
+            } else {
+                jugador = new Jugador(nombre);
+                GUI_seleccionCategoria();
             }
         });
         
@@ -196,11 +580,6 @@ class JuegoPreguntados {
         frame.repaint();
     }
     
-    /**
-     * VENTANA 3: Selección de Categoría
-     * Muestra las 4 categorías disponibles
-     * Inicializa el banco de preguntas según la categoría seleccionada
-     */
     private void GUI_seleccionCategoria() {
         frame.getContentPane().removeAll();
         
@@ -227,7 +606,6 @@ class JuegoPreguntados {
         
         String[] categorias = {"Ciencia", "Historia", "Deportes", "Geografía"};
         
-        // Crear botón para cada categoría (POE)
         for (String cat : categorias) {
             JButton btnCategoria = new JButton(cat);
             btnCategoria.setFont(new Font("Arial", Font.BOLD, 14));
@@ -236,14 +614,11 @@ class JuegoPreguntados {
             btnCategoria.setBackground(new Color(44, 62, 80));
             btnCategoria.setForeground(Color.WHITE);
             btnCategoria.setFocusPainted(false);
-            btnCategoria.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    banco.setCategoria(cat);
-                    indicePreguntaActual = 0;
-                    pistaUsada = false;
-                    GUI_pregunta();
-                }
+            btnCategoria.addActionListener(e -> {
+                banco.setCategoria(cat);
+                indicePreguntaActual = 0;
+                pistaUsada = false;
+                GUI_pregunta();
             });
             
             panel.add(btnCategoria);
@@ -255,14 +630,9 @@ class JuegoPreguntados {
         frame.repaint();
     }
     
-    /**
-     * VENTANA 4: Pregunta
-     * Muestra la pregunta actual con sus opciones
-     * Incluye sistema de pistas que cuesta 5 puntos
-     * Verifica respuestas y actualiza puntuación
-     */
     private void GUI_pregunta() {
         if (indicePreguntaActual >= banco.getPreguntas().size()) {
+            if (temporizador != null) temporizador.stop();
             GUI_resultado();
             return;
         }
@@ -271,74 +641,110 @@ class JuegoPreguntados {
         
         Pregunta pregunta = banco.getPreguntas().get(indicePreguntaActual);
         pistaUsada = false;
+        pausado = false;
+        tiempoRestante = 30;
         
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
         panel.setBackground(new Color(52, 152, 219));
-        panel.setBorder(BorderFactory.createEmptyBorder(25, 40, 25, 40));
+        panel.setBorder(BorderFactory.createEmptyBorder(20, 40, 20, 40));
         
-        // Panel superior con progreso y puntos
+        // Panel superior con temporizador, progreso y puntos
         JPanel panelSuperior = new JPanel();
-        panelSuperior.setLayout(new FlowLayout(FlowLayout.CENTER, 30, 0));
+        panelSuperior.setLayout(new FlowLayout(FlowLayout.CENTER, 20, 0));
         panelSuperior.setBackground(new Color(52, 152, 219));
-        panelSuperior.setMaximumSize(new Dimension(450, 30));
+        panelSuperior.setMaximumSize(new Dimension(500, 40));
         
-        // Indicador de progreso
+        // Temporizador
+        JLabel lblTiempo = new JLabel("⏱ Tiempo: 30");
+        lblTiempo.setFont(new Font("Arial", Font.BOLD, 16));
+        lblTiempo.setForeground(new Color(255, 235, 59));
+        
         JLabel lblProgreso = new JLabel("Pregunta " + (indicePreguntaActual + 1) + " de " + banco.getPreguntas().size());
         lblProgreso.setFont(new Font("Arial", Font.BOLD, 14));
         lblProgreso.setForeground(new Color(255, 235, 59));
         
-        // Puntos actuales
         JLabel lblPuntos = new JLabel("Puntos: " + jugador.getPuntos());
         lblPuntos.setFont(new Font("Arial", Font.BOLD, 18));
         lblPuntos.setForeground(Color.WHITE);
         
+        panelSuperior.add(lblTiempo);
         panelSuperior.add(lblProgreso);
         panelSuperior.add(lblPuntos);
         
         panel.add(panelSuperior);
-        panel.add(Box.createRigidArea(new Dimension(0, 20)));
+        panel.add(Box.createRigidArea(new Dimension(0, 15)));
         
-        // Panel para la pregunta con borde
+        // Panel para la pregunta
         JPanel panelPregunta = new JPanel();
         panelPregunta.setBackground(new Color(41, 128, 185));
         panelPregunta.setBorder(BorderFactory.createCompoundBorder(
             BorderFactory.createLineBorder(Color.WHITE, 2),
             BorderFactory.createEmptyBorder(20, 20, 20, 20)
         ));
-        panelPregunta.setMaximumSize(new Dimension(400, 150));
+        panelPregunta.setMaximumSize(new Dimension(400, 120));
         
         JLabel lblPregunta = new JLabel("<html><div style='text-align: center; width: 350px;'>" + 
             pregunta.getTexto() + "</div></html>");
-        lblPregunta.setFont(new Font("Arial", Font.BOLD, 18));
+        lblPregunta.setFont(new Font("Arial", Font.BOLD, 16));
         lblPregunta.setForeground(Color.WHITE);
-        lblPregunta.setAlignmentX(Component.CENTER_ALIGNMENT);
         panelPregunta.add(lblPregunta);
         
         panel.add(panelPregunta);
         panel.add(Box.createRigidArea(new Dimension(0, 15)));
         
-        // Botón de PISTA (POE - Costo: 5 puntos)
-        JButton btnPista = new JButton("💡 USAR PISTA (-5 puntos)");
-        btnPista.setFont(new Font("Arial", Font.BOLD, 12));
-        btnPista.setAlignmentX(Component.CENTER_ALIGNMENT);
-        btnPista.setMaximumSize(new Dimension(220, 35));
+        // Panel de botones de control
+        JPanel panelControl = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 0));
+        panelControl.setBackground(new Color(52, 152, 219));
+        panelControl.setMaximumSize(new Dimension(450, 40));
+        
+        // Botón de PISTA
+        JButton btnPista = new JButton("💡 PISTA (-5 pts)");
+        btnPista.setFont(new Font("Arial", Font.BOLD, 11));
         btnPista.setBackground(new Color(241, 196, 15));
         btnPista.setForeground(Color.BLACK);
         btnPista.setFocusPainted(false);
         btnPista.setCursor(new Cursor(Cursor.HAND_CURSOR));
         
-        // Evento del botón de pista
-        btnPista.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (pistaUsada) {
-                    JOptionPane.showMessageDialog(frame, 
-                        "Ya usaste la pista para esta pregunta", 
-                        "Pista ya usada", JOptionPane.WARNING_MESSAGE);
-                    return;
-                }
-                
+        btnPista.addActionListener(e -> {
+            if (pistaUsada) {
+                JOptionPane.showMessageDialog(frame, 
+                    "Ya usaste la pista para esta pregunta", 
+                    "Pista ya usada", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            
+            if (jugador.getPuntos() < 5) {
+                JOptionPane.showMessageDialog(frame, 
+                    "No tienes suficientes puntos\nNecesitas al menos 5 puntos", 
+                    "Puntos insuficientes", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            
+            jugador.restarPuntos(5);
+            pistaUsada = true;
+            String pista = pregunta.getPista();
+            
+            JOptionPane.showMessageDialog(frame, 
+                "PISTA:\n" + pista + "\n\n-5 puntos", 
+                "💡 Pista", JOptionPane.INFORMATION_MESSAGE);
+            
+            lblPuntos.setText("Puntos: " + jugador.getPuntos());
+            btnPista.setEnabled(false);
+            btnPista.setText("💡 USADA");
+            btnPista.setBackground(Color.GRAY);
+        });
+        
+        // Botón de PAUSA
+        JButton btnPausa = new JButton("⏸ PAUSA (-5 pts)");
+        btnPausa.setFont(new Font("Arial", Font.BOLD, 11));
+        btnPausa.setBackground(new Color(52, 73, 94));
+        btnPausa.setForeground(Color.WHITE);
+        btnPausa.setFocusPainted(false);
+        btnPausa.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        
+        btnPausa.addActionListener(e -> {
+            if (!pausado) {
                 if (jugador.getPuntos() < 5) {
                     JOptionPane.showMessageDialog(frame, 
                         "No tienes suficientes puntos\nNecesitas al menos 5 puntos", 
@@ -346,35 +752,80 @@ class JuegoPreguntados {
                     return;
                 }
                 
-                // Consumir puntos y mostrar pista
+                // Pausar
+                pausado = true;
+                temporizador.stop();
                 jugador.restarPuntos(5);
-                pistaUsada = true;
-                String pista = pregunta.getPista();
+                lblPuntos.setText("Puntos: " + jugador.getPuntos());
+                btnPausa.setText("▶ REANUDAR");
+                btnPausa.setBackground(new Color(46, 204, 113));
                 
                 JOptionPane.showMessageDialog(frame, 
-                    "PISTA:\n" + pista + "\n\n-5 puntos", 
-                    "💡 Pista", JOptionPane.INFORMATION_MESSAGE);
-                
-                // Actualizar puntos en pantalla
-                lblPuntos.setText("Puntos: " + jugador.getPuntos());
-                btnPista.setEnabled(false);
-                btnPista.setText("💡 PISTA USADA");
-                btnPista.setBackground(Color.GRAY);
+                    "Juego pausado\n-5 puntos", 
+                    "Pausa", JOptionPane.INFORMATION_MESSAGE);
+            } else {
+                // Reanudar
+                pausado = false;
+                temporizador.start();
+                btnPausa.setText("⏸ PAUSA (-5 pts)");
+                btnPausa.setBackground(new Color(52, 73, 94));
             }
         });
         
-        panel.add(btnPista);
-        panel.add(Box.createRigidArea(new Dimension(0, 20)));
+        // Botón de SALIR
+        JButton btnSalir = new JButton("❌ SALIR");
+        btnSalir.setFont(new Font("Arial", Font.BOLD, 11));
+        btnSalir.setBackground(new Color(231, 76, 60));
+        btnSalir.setForeground(Color.WHITE);
+        btnSalir.setFocusPainted(false);
+        btnSalir.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        
+        btnSalir.addActionListener(e -> {
+            if (temporizador != null) temporizador.stop();
+            
+            int confirmacion = JOptionPane.showConfirmDialog(frame, 
+                "¿Estás seguro de que quieres salir de la partida?", 
+                "Salir de la partida", 
+                JOptionPane.YES_NO_OPTION);
+            
+            if (confirmacion == JOptionPane.YES_OPTION) {
+                System.out.println("=================================");
+                System.out.println("El jugador " + jugador.getNombre() + " salió de la partida");
+                System.out.println("Puntos obtenidos: " + jugador.getPuntos());
+                System.out.println("=================================");
+                
+                JOptionPane.showMessageDialog(frame, 
+                    "Saliste de la partida\n\nJugador: " + jugador.getNombre() + 
+                    "\nPuntos: " + jugador.getPuntos(), 
+                    "Partida Abandonada", JOptionPane.INFORMATION_MESSAGE);
+                
+                GUI_inicio();
+            } else {
+                if (pausado) {
+                    // Si estaba pausado, no reiniciar el temporizador
+                } else {
+                    temporizador.start();
+                }
+            }
+        });
+        
+        panelControl.add(btnPista);
+        panelControl.add(btnPausa);
+        panelControl.add(btnSalir);
+        
+        panel.add(panelControl);
+        panel.add(Box.createRigidArea(new Dimension(0, 15)));
         
         // Opciones de respuesta
         ArrayList<String> opciones = pregunta.getOpciones();
+        ArrayList<JButton> botonesOpciones = new ArrayList<>();
         
         for (int i = 0; i < opciones.size(); i++) {
             String opcion = opciones.get(i);
             JButton btnOpcion = new JButton((char)('A' + i) + ") " + opcion);
-            btnOpcion.setFont(new Font("Arial", Font.PLAIN, 15));
+            btnOpcion.setFont(new Font("Arial", Font.PLAIN, 14));
             btnOpcion.setAlignmentX(Component.CENTER_ALIGNMENT);
-            btnOpcion.setMaximumSize(new Dimension(380, 50));
+            btnOpcion.setMaximumSize(new Dimension(380, 45));
             btnOpcion.setBackground(Color.WHITE);
             btnOpcion.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(new Color(52, 152, 219), 2),
@@ -383,51 +834,85 @@ class JuegoPreguntados {
             btnOpcion.setFocusPainted(false);
             btnOpcion.setCursor(new Cursor(Cursor.HAND_CURSOR));
             
-            // Efecto hover (POE - MouseListener)
+            // Efecto hover
             btnOpcion.addMouseListener(new MouseAdapter() {
                 public void mouseEntered(MouseEvent e) {
-                    btnOpcion.setBackground(new Color(46, 204, 113));
-                    btnOpcion.setForeground(Color.WHITE);
+                    if (btnOpcion.isEnabled()) {
+                        btnOpcion.setBackground(new Color(46, 204, 113));
+                        btnOpcion.setForeground(Color.WHITE);
+                    }
                 }
                 public void mouseExited(MouseEvent e) {
-                    btnOpcion.setBackground(Color.WHITE);
-                    btnOpcion.setForeground(Color.BLACK);
+                    if (btnOpcion.isEnabled()) {
+                        btnOpcion.setBackground(Color.WHITE);
+                        btnOpcion.setForeground(Color.BLACK);
+                    }
                 }
             });
             
-            // Evento de click en opción (POE)
-            btnOpcion.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    if (pregunta.verificarRespuesta(opcion)) {
-                        jugador.sumarPuntos(10);
-                        JOptionPane.showMessageDialog(frame, 
-                            "¡Excelente! Respuesta correcta\n+10 puntos", 
-                            "✓ Correcto", JOptionPane.INFORMATION_MESSAGE);
-                    } else {
-                        JOptionPane.showMessageDialog(frame, 
-                            "Respuesta incorrecta\n\nLa respuesta correcta era:\n" + pregunta.getRespuestaCorrecta(), 
-                            "✗ Incorrecto", JOptionPane.ERROR_MESSAGE);
+            btnOpcion.addActionListener(e -> {
+                temporizador.stop();
+                
+                for (JButton btn : botonesOpciones) {
+                    btn.setEnabled(false);
+                }
+                
+                if (pregunta.verificarRespuesta(opcion)) {
+                    jugador.sumarPuntos(10);
+                    JOptionPane.showMessageDialog(frame, 
+                        "¡Excelente! Respuesta correcta\n+10 puntos", 
+                        "✓ Correcto", JOptionPane.INFORMATION_MESSAGE);
+                } else {
+                    JOptionPane.showMessageDialog(frame, 
+                        "Respuesta incorrecta\n\nLa respuesta correcta era:\n" + pregunta.getRespuestaCorrecta(), 
+                        "✗ Incorrecto", JOptionPane.ERROR_MESSAGE);
+                }
+                indicePreguntaActual++;
+                GUI_pregunta();
+            });
+            
+            botonesOpciones.add(btnOpcion);
+            panel.add(btnOpcion);
+            panel.add(Box.createRigidArea(new Dimension(0, 10)));
+        }
+        
+        // Iniciar temporizador
+        temporizador = new Timer(1000, e -> {
+            if (!pausado) {
+                tiempoRestante--;
+                lblTiempo.setText("⏱ Tiempo: " + tiempoRestante);
+                
+                // Cambiar color según tiempo restante
+                if (tiempoRestante <= 10) {
+                    lblTiempo.setForeground(new Color(231, 76, 60));
+                } else if (tiempoRestante <= 20) {
+                    lblTiempo.setForeground(new Color(241, 196, 15));
+                }
+                
+                if (tiempoRestante <= 0) {
+                    temporizador.stop();
+                    
+                    for (JButton btn : botonesOpciones) {
+                        btn.setEnabled(false);
                     }
+                    
+                    JOptionPane.showMessageDialog(frame, 
+                        "¡Se acabó el tiempo!\n\nLa respuesta correcta era:\n" + pregunta.getRespuestaCorrecta(), 
+                        "Tiempo Agotado", JOptionPane.WARNING_MESSAGE);
+                    
                     indicePreguntaActual++;
                     GUI_pregunta();
                 }
-            });
-            
-            panel.add(btnOpcion);
-            panel.add(Box.createRigidArea(new Dimension(0, 12)));
-        }
+            }
+        });
+        
+        temporizador.start();
         
         frame.add(panel);
         frame.revalidate();
         frame.repaint();
     }
     
-    /**
-     * VENTANA 5: Resultado Final
-     * Muestra la puntuación final del jugador
-     * Opciones para jugar de nuevo o salir
-     */
     private void GUI_resultado() {
         frame.getContentPane().removeAll();
         
@@ -460,36 +945,29 @@ class JuegoPreguntados {
         panel.add(lblPuntos);
         panel.add(Box.createRigidArea(new Dimension(0, 40)));
         
-        // Botón reintentar (POE)
         JButton btnReintentar = new JButton("JUGAR DE NUEVO");
         btnReintentar.setFont(new Font("Arial", Font.BOLD, 14));
         btnReintentar.setAlignmentX(Component.CENTER_ALIGNMENT);
         btnReintentar.setBackground(new Color(52, 152, 219));
         btnReintentar.setForeground(Color.WHITE);
         btnReintentar.setFocusPainted(false);
-        btnReintentar.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                jugador = null;
-                GUI_inicio();
-            }
+        btnReintentar.addActionListener(e -> {
+            jugador = null;
+            GUI_inicio();
         });
         
         panel.add(btnReintentar);
         panel.add(Box.createRigidArea(new Dimension(0, 10)));
         
-        // Botón salir (POE)
         JButton btnSalir = new JButton("SALIR");
         btnSalir.setFont(new Font("Arial", Font.BOLD, 14));
         btnSalir.setAlignmentX(Component.CENTER_ALIGNMENT);
         btnSalir.setBackground(new Color(231, 76, 60));
         btnSalir.setForeground(Color.WHITE);
         btnSalir.setFocusPainted(false);
-        btnSalir.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                System.exit(0);
-            }
+        btnSalir.addActionListener(e -> {
+            System.out.println("Gracias por jugar. ¡Hasta pronto!");
+            System.exit(0);
         });
         
         panel.add(btnSalir);
@@ -500,64 +978,27 @@ class JuegoPreguntados {
     }
 }
 
-/**
- * ========================================
- * CLASE: Jugador
- * ========================================
- * Representa a un jugador del juego
- * 
- * ATRIBUTOS:
- * - nombre: Nombre del jugador
- * - puntos: Puntuación acumulada
- * 
- * MÉTODOS:
- * - getNombre(): Retorna el nombre del jugador
- * - getPuntos(): Retorna los puntos actuales
- * - sumarPuntos(int): Suma puntos (respuesta correcta = +10)
- * - restarPuntos(int): Resta puntos (usar pista = -5)
- * ========================================
- */
 class Jugador {
     private String nombre;
     private int puntos;
     
-    /**
-     * Constructor: Crea un jugador con puntos iniciales en 0
-     * @param nombre Nombre del jugador
-     */
     public Jugador(String nombre) {
         this.nombre = nombre;
         this.puntos = 0;
     }
     
-    /**
-     * Obtiene el nombre del jugador
-     * @return nombre del jugador
-     */
     public String getNombre() {
         return nombre;
     }
     
-    /**
-     * Obtiene los puntos actuales del jugador
-     * @return puntos acumulados
-     */
     public int getPuntos() {
         return puntos;
     }
     
-    /**
-     * Suma puntos al jugador (respuesta correcta)
-     * @param puntos Cantidad de puntos a sumar
-     */
     public void sumarPuntos(int puntos) {
         this.puntos += puntos;
     }
     
-    /**
-     * Resta puntos al jugador (usar pista)
-     * @param puntos Cantidad de puntos a restar
-     */
     public void restarPuntos(int puntos) {
         this.puntos -= puntos;
         if (this.puntos < 0) {
@@ -566,41 +1007,12 @@ class Jugador {
     }
 }
 
-/**
- * ========================================
- * CLASE: Pregunta
- * ========================================
- * Representa una pregunta del juego
- * 
- * ATRIBUTOS:
- * - texto: Enunciado de la pregunta
- * - opciones: Lista de opciones de respuesta (4 opciones)
- * - respuestaCorrecta: Respuesta correcta
- * - pista: Ayuda para el jugador
- * 
- * MÉTODOS:
- * - getTexto(): Retorna el texto de la pregunta
- * - getOpciones(): Retorna las opciones barajadas
- * - getRespuestaCorrecta(): Retorna la respuesta correcta
- * - getPista(): Retorna la pista de la pregunta
- * - verificarRespuesta(String): Verifica si la respuesta es correcta
- * ========================================
- */
 class Pregunta {
     private String texto;
     private ArrayList<String> opciones;
     private String respuestaCorrecta;
     private String pista;
     
-    /**
-     * Constructor: Crea una pregunta con sus opciones y pista
-     * Las opciones se barajan aleatoriamente
-     * 
-     * @param texto Enunciado de la pregunta
-     * @param opcionesArray Arreglo con las 4 opciones
-     * @param respuestaCorrecta Respuesta correcta
-     * @param pista Ayuda para el jugador
-     */
     public Pregunta(String texto, String[] opcionesArray, String respuestaCorrecta, String pista) {
         this.texto = texto;
         this.respuestaCorrecta = respuestaCorrecta;
@@ -628,58 +1040,54 @@ class Pregunta {
         return pista;
     }
     
-    /**
-     * Verifica si la respuesta proporcionada es correcta
-     * @param respuesta Respuesta del jugador
-     * @return true si es correcta, false si no
-     */
     public boolean verificarRespuesta(String respuesta) {
         return respuesta.equals(respuestaCorrecta);
     }
 }
 
-/**
- * ========================================
- * CLASE: BancoPregunta
- * ========================================
- * Almacena y gestiona todas las preguntas del juego
- * 
- * ATRIBUTOS:
- * - preguntas: Lista de preguntas de la categoría actual
- * 
- * MÉTODOS:
- * - setCategoria(String): Carga las preguntas de una categoría
- * - getPreguntas(): Retorna la lista de preguntas
- * 
- * CATEGORÍAS DISPONIBLES:
- * 1. Ciencia (6 preguntas)
- * 2. Historia (6 preguntas)
- * 3. Deportes (6 preguntas)
- * 4. Geografía (6 preguntas)
- * TOTAL: 24 preguntas
- * ========================================
- */
+
 class BancoPregunta {
     private ArrayList<Pregunta> preguntas;
     
-    /**
-     * Constructor: Inicializa el banco de preguntas vacío
-     */
     public BancoPregunta() {
         preguntas = new ArrayList<>();
     }
     
-    /**
-     * Carga las preguntas según la categoría seleccionada
-     * Cada pregunta incluye su pista
-     * 
-     * @param categoria Nombre de la categoría (Ciencia, Historia, Deportes, Geografía)
-     */
     public void setCategoria(String categoria) {
         preguntas.clear();
         
         switch (categoria) {
             case "Ciencia":
+                preguntas.add(new Pregunta(
+                    "¿Cuál es el planeta más cercano al Sol?",
+                    new String[]{"Venus", "Mercurio", "Marte", "Tierra"},
+                    "Mercurio",
+                    "Es el planeta más pequeño del sistema solar"
+                ));
+                preguntas.add(new Pregunta(
+                    "¿Qué gas es más abundante en la atmósfera?",
+                    new String[]{"Oxígeno", "Nitrógeno", "Dióxido de carbono", "Hidrógeno"},
+                    "Nitrógeno",
+                    "Representa aproximadamente el 78% del aire"
+                ));
+                preguntas.add(new Pregunta(
+                    "¿Cuántos huesos tiene el cuerpo humano adulto?",
+                    new String[]{"206", "195", "215", "180"},
+                    "206",
+                    "Los bebés nacen con más huesos que se fusionan"
+                ));
+                preguntas.add(new Pregunta(
+                    "¿Cuál es la velocidad de la luz?",
+                    new String[]{"300,000 km/s", "150,000 km/s", "500,000 km/s", "200,000 km/s"},
+                    "300,000 km/s",
+                    "Es la velocidad máxima en el universo"
+                ));
+                preguntas.add(new Pregunta(
+                    "¿Qué órgano del cuerpo humano consume más energía?",
+                    new String[]{"Cerebro", "Corazón", "Hígado", "Pulmones"},
+                    "Cerebro",
+                    "Consume el 20% de la energía del cuerpo"
+                ));
                 preguntas.add(new Pregunta(
                     "¿Cuál es el elemento químico más abundante en el universo?",
                     new String[]{"Hidrógeno", "Oxígeno", "Carbono", "Helio"},
@@ -807,11 +1215,37 @@ class BancoPregunta {
         }
     }
     
-    /**
-     * Retorna la lista de preguntas de la categoría actual
-     * @return ArrayList con las preguntas
-     */
     public ArrayList<Pregunta> getPreguntas() {
         return preguntas;
+    }
+    
+    public void agregarPregunta(String categoria, String texto, String[] opciones, 
+                                String respuestaCorrecta, String pista) {
+        setCategoria(categoria);
+        preguntas.add(new Pregunta(texto, opciones, respuestaCorrecta, pista));
+    }
+    
+    public void eliminarPregunta(int indice) {
+        if (indice >= 0 && indice < preguntas.size()) {
+            preguntas.remove(indice);
+        }
+    }
+}
+
+class Administrador {
+    private String usuario;
+    private String password;
+    
+    public Administrador(String usuario, String password) {
+        this.usuario = usuario;
+        this.password = password;
+    }
+    
+    public boolean autenticar(String usuario, String password) {
+        return this.usuario.equals(usuario) && this.password.equals(password);
+    }
+    
+    public String getUsuario() {
+        return usuario;
     }
 }
