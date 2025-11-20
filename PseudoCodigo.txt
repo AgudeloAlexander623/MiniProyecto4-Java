@@ -1,0 +1,645 @@
+Algoritmo JuegoPreguntados
+    // Declaración de variables globales
+    Definir opcionMenu Como Entero
+    Definir nombreJugador Como Cadena
+    Definir puntosJugador Como Entero
+    Definir categoriaSeleccionada Como Cadena
+    Definir preguntaActual Como Entero
+    Definir tiempoRestante Como Entero
+    Definir juegoActivo Como Logico
+    
+    // Inicialización
+    puntosJugador <- 0
+    preguntaActual <- 0
+    juegoActivo <- Verdadero
+    
+    // Llamar función principal
+    MenuPrincipal()
+    
+FinAlgoritmo
+
+Funcion MenuPrincipal
+    Definir opcion Como Entero
+    
+    Limpiar Pantalla
+    Escribir "======================================="
+    Escribir "       ¡PREGUNTADOS  :D  ¡"
+    Escribir "======================================="
+    Escribir ""
+    Escribir "Jessid alexander agudelo herrera"
+    Escribir "Código: 202478460"
+    Escribir ""
+    Escribir "======================================="
+    Escribir "1. INICIAR JUEGO"
+    Escribir "2. ADMINISTRADOR"
+    Escribir "3. SALIR"
+    Escribir "======================================="
+    Escribir ""
+    Escribir "Seleccione una opción: " Sin Saltar
+    Leer opcion
+    
+    Segun opcion Hacer
+        1:
+            IngresarNombre()
+        2:
+            LoginAdministrador()
+        3:
+            Escribir "¡Gracias por jugar! Hasta pronto."
+        De Otro Modo:
+            Escribir "Opción inválida. Intente nuevamente."
+            Esperar 2 Segundos
+            MenuPrincipal()
+    FinSegun
+    
+FinFuncion
+
+Funcion MenuPrincipal
+    Definir opcion Como Entero
+    
+    Limpiar Pantalla
+    Escribir "======================================="
+    Escribir "       ¡PREGUNTADOS  :D  ¡"
+    Escribir "======================================="
+    Escribir ""
+    Escribir "Jessid alexander agudelo herrera"
+    Escribir "Código: 202478460"
+    Escribir ""
+    Escribir "======================================="
+    Escribir "1. INICIAR JUEGO"
+    Escribir "2. ADMINISTRADOR"
+    Escribir "3. SALIR"
+    Escribir "======================================="
+    Escribir ""
+    Escribir "Seleccione una opción: " Sin Saltar
+    Leer opcion
+    
+    Segun opcion Hacer
+        1:
+            IngresarNombre()
+        2:
+            LoginAdministrador()
+        3:
+            Escribir "¡Gracias por jugar! Hasta pronto."
+        De Otro Modo:
+            Escribir "Opción inválida. Intente nuevamente."
+            Esperar 2 Segundos
+            MenuPrincipal()
+    FinSegun
+    
+FinFuncion
+
+Funcion CrearAdministrador
+    Definir respuesta1, respuesta2, respuesta3 Como Cadena
+    Definir correctas Como Entero
+    Definir nuevoUsuario, nuevoPassword Como Cadena
+    
+    Limpiar Pantalla
+    Escribir "======================================="
+    Escribir "   PREGUNTAS DE SEGURIDAD"
+    Escribir "======================================="
+    Escribir ""
+    Escribir "Responde al menos 2 de 3 preguntas correctamente"
+    Escribir ""
+    
+    correctas <- 0
+    
+    // Pregunta 1
+    Escribir "1. ¿Cómo se llama el creador del juego?"
+    Escribir "   Respuesta: " Sin Saltar
+    Leer respuesta1
+    
+    Si Minusculas(respuesta1) = "alexander agudelo" Entonces
+        correctas <- correctas + 1
+    FinSi
+    
+    // Pregunta 2
+    Escribir ""
+    Escribir "2. ¿Cuál es el nombre del perro del creador?"
+    Escribir "   Respuesta: " Sin Saltar
+    Leer respuesta2
+    
+    Si Minusculas(respuesta2) = "thanos" Entonces
+        correctas <- correctas + 1
+    FinSi
+    
+    // Pregunta 3
+    Escribir ""
+    Escribir "3. ¿Cuál es la edad del creador del juego?"
+    Escribir "   Respuesta: " Sin Saltar
+    Leer respuesta3
+    
+    Si respuesta3 = "21" Entonces
+        correctas <- correctas + 1
+    FinSi
+    
+    Escribir ""
+    Escribir "======================================="
+    
+    // Verificar si cumple el mínimo
+    Si correctas >= 2 Entonces
+        Escribir "✓ Aprobado: ", correctas, " de 3 correctas"
+        Escribir ""
+        Escribir "Ingresa el nombre de usuario: " Sin Saltar
+        Leer nuevoUsuario
+        Escribir "Ingresa la contraseña: " Sin Saltar
+        Leer nuevoPassword
+        
+        Si (Longitud(nuevoUsuario) > 0) Y (Longitud(nuevoPassword) > 0) Entonces
+            Escribir ""
+            Escribir "¡Administrador creado exitosamente!"
+            Escribir "Usuario: ", nuevoUsuario
+            Esperar 3 Segundos
+            LoginAdministrador()
+        SiNo
+            Escribir "Error: Campos vacíos"
+            Esperar 2 Segundos
+            CrearAdministrador()
+        FinSi
+    SiNo
+        // No cumple, volver al inicio SIN mensaje
+        MenuPrincipal()
+    FinSi
+    
+FinFuncion
+
+Funcion PanelAdministrador
+    Definir opcion Como Entero
+    
+    Limpiar Pantalla
+    Escribir "======================================="
+    Escribir "   PANEL DE ADMINISTRACIÓN - CRUD"
+    Escribir "======================================="
+    Escribir ""
+    Escribir "1. VER PREGUNTAS"
+    Escribir "2. AGREGAR PREGUNTA"
+    Escribir "3. MODIFICAR PREGUNTA"
+    Escribir "4. ELIMINAR PREGUNTA"
+    Escribir "5. VOLVER AL MENÚ PRINCIPAL"
+    Escribir ""
+    Escribir "Seleccione una opción: " Sin Saltar
+    Leer opcion
+    
+    Segun opcion Hacer
+        1:
+            VerPreguntas()
+        2:
+            AgregarPregunta()
+        3:
+            ModificarPregunta()
+        4:
+            EliminarPregunta()
+        5:
+            MenuPrincipal()
+        De Otro Modo:
+            Escribir "Opción inválida"
+            Esperar 2 Segundos
+            PanelAdministrador()
+    FinSegun
+    
+FinFuncion
+
+Funcion VerPreguntas
+    Definir categoria Como Cadena
+    Definir i, totalPreguntas Como Entero
+    Dimension preguntas[100]  // Array de preguntas
+    
+    Limpiar Pantalla
+    Escribir "======================================="
+    Escribir "         VER PREGUNTAS"
+    Escribir "======================================="
+    Escribir ""
+    Escribir "Categorías disponibles:"
+    Escribir "1. Ciencia"
+    Escribir "2. Historia"
+    Escribir "3. Deportes"
+    Escribir "4. Geografía"
+    Escribir ""
+    Escribir "Ingrese la categoría: " Sin Saltar
+    Leer categoria
+    
+    // Cargar preguntas según categoría
+    CargarPreguntasPorCategoria(categoria)
+    
+    Escribir ""
+    Escribir "======================================="
+    Escribir "Categoría: ", categoria
+    Escribir "======================================="
+    Escribir ""
+    
+    // Mostrar preguntas (simulación)
+    totalPreguntas <- 6  // 6 preguntas por categoría
+    
+    Para i <- 1 Hasta totalPreguntas Con Paso 1 Hacer
+        Escribir i, ". ", preguntas[i]
+    FinPara
+    
+    Escribir ""
+    Escribir "Presione ENTER para continuar..."
+    Esperar Tecla
+    PanelAdministrador()
+    
+FinFuncion
+
+Funcion AgregarPregunta
+    Definir categoria, textoPregunta Como Cadena
+    Definir opcion1, opcion2, opcion3, opcion4 Como Cadena
+    Definir respuestaCorrecta, pista Como Cadena
+    
+    Limpiar Pantalla
+    Escribir "======================================="
+    Escribir "       AGREGAR PREGUNTA"
+    Escribir "======================================="
+    Escribir ""
+    
+    Escribir "Categoría (Ciencia/Historia/Deportes/Geografía): " Sin Saltar
+    Leer categoria
+    
+    Escribir "Texto de la pregunta: " Sin Saltar
+    Leer textoPregunta
+    
+    Escribir "Opción 1: " Sin Saltar
+    Leer opcion1
+    
+    Escribir "Opción 2: " Sin Saltar
+    Leer opcion2
+    
+    Escribir "Opción 3: " Sin Saltar
+    Leer opcion3
+    
+    Escribir "Opción 4: " Sin Saltar
+    Leer opcion4
+    
+    Escribir "Respuesta correcta: " Sin Saltar
+    Leer respuestaCorrecta
+    
+    Escribir "Pista: " Sin Saltar
+    Leer pista
+    
+    // Validar que todos los campos estén llenos
+    Si (Longitud(textoPregunta) > 0) Y (Longitud(respuestaCorrecta) > 0) Entonces
+        Escribir ""
+        Escribir "✓ ¡Pregunta agregada exitosamente!"
+        // Guardar en el banco de preguntas
+    SiNo
+        Escribir ""
+        Escribir "✗ Error: Campos incompletos"
+    FinSi
+    
+    Escribir ""
+    Escribir "Presione ENTER para continuar..."
+    Esperar Tecla
+    PanelAdministrador()
+    
+FinFuncion
+
+Funcion EliminarPregunta
+    Definir categoria Como Cadena
+    Definir numeroPregunta Como Entero
+    Definir confirmar Como Caracter
+    
+    Limpiar Pantalla
+    Escribir "======================================="
+    Escribir "       ELIMINAR PREGUNTA"
+    Escribir "======================================="
+    Escribir ""
+    
+    Escribir "Categoría: " Sin Saltar
+    Leer categoria
+    
+    // Mostrar preguntas de esa categoría
+    VerPreguntasCategoria(categoria)
+    
+    Escribir ""
+    Escribir "Número de pregunta a eliminar (1-6): " Sin Saltar
+    Leer numeroPregunta
+    
+    Si (numeroPregunta >= 1) Y (numeroPregunta <= 6) Entonces
+        Escribir ""
+        Escribir "¿Está seguro? (S/N): " Sin Saltar
+        Leer confirmar
+        
+        Si Mayusculas(confirmar) = "S" Entonces
+            // Eliminar pregunta del banco
+            Escribir ""
+            Escribir "✓ ¡Pregunta eliminada!"
+        SiNo
+            Escribir ""
+            Escribir "Operación cancelada"
+        FinSi
+    SiNo
+        Escribir ""
+        Escribir "✗ Número de pregunta inválido"
+    FinSi
+    
+    Escribir ""
+    Escribir "Presione ENTER para continuar..."
+    Esperar Tecla
+    PanelAdministrador()
+    
+FinFuncion
+
+Funcion IngresarNombre
+    Definir nombre Como Cadena
+    
+    Limpiar Pantalla
+    Escribir "======================================="
+    Escribir "       INGRESA TU NOMBRE"
+    Escribir "======================================="
+    Escribir ""
+    Escribir "Nombre del jugador: " Sin Saltar
+    Leer nombre
+    
+    // Validar que no esté vacío
+    Si Longitud(nombre) > 0 Entonces
+        nombreJugador <- nombre
+        SeleccionarCategoria()
+    SiNo
+        Escribir ""
+        Escribir "✗ Error: Debes ingresar un nombre"
+        Esperar 2 Segundos
+        IngresarNombre()
+    FinSi
+    
+FinFuncion
+
+Funcion SeleccionarCategoria
+    Definir opcion Como Entero
+    Definir categoria Como Cadena
+    
+    Limpiar Pantalla
+    Escribir "======================================="
+    Escribir "    SELECCIONA UNA CATEGORÍA"
+    Escribir "======================================="
+    Escribir ""
+    Escribir "¡Hola ", nombreJugador, "!"
+    Escribir ""
+    Escribir "1. Ciencia"
+    Escribir "2. Historia"
+    Escribir "3. Deportes"
+    Escribir "4. Geografía"
+    Escribir ""
+    Escribir "Seleccione una opción: " Sin Saltar
+    Leer opcion
+    
+    Segun opcion Hacer
+        1:
+            categoria <- "Ciencia"
+        2:
+            categoria <- "Historia"
+        3:
+            categoria <- "Deportes"
+        4:
+            categoria <- "Geografía"
+        De Otro Modo:
+            Escribir "Opción inválida"
+            Esperar 2 Segundos
+            SeleccionarCategoria()
+    FinSegun
+    
+    categoriaSeleccionada <- categoria
+    preguntaActual <- 1
+    CargarPreguntasPorCategoria(categoria)
+    IniciarJuego()
+    
+FinFuncion
+
+Funcion IniciarJuego
+    Definir totalPreguntas Como Entero
+    
+    totalPreguntas <- 6  // 6 preguntas por categoría
+    
+    Mientras preguntaActual <= totalPreguntas Hacer
+        MostrarPregunta(preguntaActual)
+        preguntaActual <- preguntaActual + 1
+    FinMientras
+    
+    // Todas las preguntas respondidas
+    MostrarResultado()
+    
+FinFuncion
+
+Funcion MostrarPregunta(numeroPregunta)
+    Definir opcion Como Entero
+    Definir respuestaUsuario Como Cadena
+    Definir respuestaCorrecta Como Cadena
+    Definir usarPista, pausar, salir Como Logico
+    Definir tiempo Como Entero
+    
+    // Inicializar variables
+    tiempo <- 30
+    usarPista <- Falso
+    pausar <- Falso
+    
+    Limpiar Pantalla
+    Escribir "======================================="
+    Escribir "Pregunta ", numeroPregunta, " de 6"
+    Escribir "Puntos: ", puntosJugador
+    Escribir "⏱ Tiempo: ", tiempo, " segundos"
+    Escribir "======================================="
+    Escribir ""
+    
+    // Mostrar pregunta (simulación)
+    Escribir "¿Cuál es el planeta más cercano al Sol?"
+    Escribir ""
+    Escribir "A) Venus"
+    Escribir "B) Mercurio"
+    Escribir "C) Marte"
+    Escribir "D) Tierra"
+    Escribir ""
+    Escribir "======================================="
+    Escribir "1. Responder"
+    Escribir "2. 💡 Usar pista (-5 puntos)"
+    Escribir "3. ⏸ Pausar (-5 puntos)"
+    Escribir "4. ❌ Salir del juego"
+    Escribir "======================================="
+    Escribir ""
+    Escribir "Seleccione una opción: " Sin Saltar
+    Leer opcion
+    
+    Segun opcion Hacer
+        1:
+            // Responder pregunta
+            Escribir ""
+            Escribir "Tu respuesta (A/B/C/D): " Sin Saltar
+            Leer respuestaUsuario
+            
+            respuestaCorrecta <- "B"  // Mercurio
+            
+            Si Mayusculas(respuestaUsuario) = respuestaCorrecta Entonces
+                puntosJugador <- puntosJugador + 10
+                Escribir ""
+                Escribir "✓ ¡Excelente! Respuesta correcta"
+                Escribir "  +10 puntos"
+            SiNo
+                Escribir ""
+                Escribir "✗ Respuesta incorrecta"
+                Escribir "  La respuesta correcta era: ", respuestaCorrecta
+            FinSi
+            
+            Esperar 3 Segundos
+            
+        2:
+            // Usar pista
+            Si puntosJugador >= 5 Entonces
+                puntosJugador <- puntosJugador - 5
+                Escribir ""
+                Escribir "💡 PISTA: Es el planeta más pequeño del sistema solar"
+                Escribir "   -5 puntos"
+                Esperar 4 Segundos
+                MostrarPregunta(numeroPregunta)  // Volver a mostrar la pregunta
+            SiNo
+                Escribir ""
+                Escribir "✗ No tienes suficientes puntos"
+                Escribir "  Necesitas al menos 5 puntos"
+                Esperar 3 Segundos
+                MostrarPregunta(numeroPregunta)
+            FinSi
+            
+        3:
+            // Pausar
+            Si puntosJugador >= 5 Entonces
+                puntosJugador <- puntosJugador - 5
+                Escribir ""
+                Escribir "⏸ Juego pausado"
+                Escribir "   -5 puntos"
+                Escribir ""
+                Escribir "Presione ENTER para continuar..."
+                Esperar Tecla
+                MostrarPregunta(numeroPregunta)
+            SiNo
+                Escribir ""
+                Escribir "✗ No tienes suficientes puntos"
+                Esperar 3 Segundos
+                MostrarPregunta(numeroPregunta)
+            FinSi
+            
+        4:
+            // Salir del juego
+            Escribir ""
+            Escribir "¿Estás seguro de salir? (S/N): " Sin Saltar
+            Leer respuestaUsuario
+            
+            Si Mayusculas(respuestaUsuario) = "S" Entonces
+                Escribir ""
+                Escribir "======================================="
+                Escribir "El jugador ", nombreJugador, " salió de la partida"
+                Escribir "Puntos obtenidos: ", puntosJugador
+                Escribir "======================================="
+                Esperar 4 Segundos
+                MenuPrincipal()
+            SiNo
+                MostrarPregunta(numeroPregunta)
+            FinSi
+            
+        De Otro Modo:
+            Escribir "Opción inválida"
+            Esperar 2 Segundos
+            MostrarPregunta(numeroPregunta)
+    FinSegun
+    
+FinFuncion
+
+Funcion MostrarResultado
+    Definir opcion Como Entero
+    
+    Limpiar Pantalla
+    Escribir "======================================="
+    Escribir "       ¡JUEGO TERMINADO!"
+    Escribir "======================================="
+    Escribir ""
+    Escribir "Jugador: ", nombreJugador
+    Escribir "Puntos Finales: ", puntosJugador
+    Escribir ""
+    Escribir "======================================="
+    Escribir "1. JUGAR DE NUEVO"
+    Escribir "2. SALIR"
+    Escribir "======================================="
+    Escribir ""
+    Escribir "Seleccione una opción: " Sin Saltar
+    Leer opcion
+    
+    Segun opcion Hacer
+        1:
+            puntosJugador <- 0
+            preguntaActual <- 0
+            MenuPrincipal()
+        2:
+            Escribir ""
+            Escribir "¡Gracias por jugar! Hasta pronto."
+        De Otro Modo:
+            Escribir "Opción inválida"
+            Esperar 2 Segundos
+            MostrarResultado()
+    FinSegun
+    
+FinFuncion
+
+
+// funcion auxiliar de cargar las preguntas por categoria
+Funcion CargarPreguntasPorCategoria(categoria)
+    // Esta función carga las preguntas según la categoría
+    
+    Si categoria = "Ciencia" Entonces
+        // Cargar 6 preguntas de ciencia
+        Escribir "Cargando preguntas de Ciencia..."
+        
+    SiNo Si categoria = "Historia" Entonces
+        // Cargar 6 preguntas de historia
+        Escribir "Cargando preguntas de Historia..."
+        
+    SiNo Si categoria = "Deportes" Entonces
+        // Cargar 6 preguntas de deportes
+        Escribir "Cargando preguntas de Deportes..."
+        
+    SiNo Si categoria = "Geografía" Entonces
+        // Cargar 6 preguntas de geografía
+        Escribir "Cargando preguntas de Geografía..."
+        
+    FinSi
+    
+    Esperar 1 Segundos
+    
+FinFuncion
+
+// Variables globales
+nombreJugador: Cadena
+puntosJugador: Entero (inicial = 0)
+categoriaSeleccionada: Cadena
+preguntaActual: Entero (inicial = 0)
+tiempoRestante: Entero (inicial = 30)
+juegoActivo: Logico
+pistaUsada: Logico
+pausado: Logico
+
+// Arreglos(Arrays)
+Dimension preguntas[100] Como Cadena
+Dimension opciones[4] Como Cadena
+Dimension respuestasCorrectas[100] Como Cadena
+Dimension pistas[100] Como Cadena
+Dimension administradores[10, 2] Como Cadena
+// administradores[i, 0] = usuario
+// administradores[i, 1] = password
+
+
+
+// Estas funciones no sirven pero son para simular el pseudocodigo
+1. Limpiar Pantalla → Borrar Pantalla
+2. Esperar Tecla → Leer variable_dummy
+3. Mayusculas(texto) → Función personalizada
+4. Minusculas(texto) → Función personalizada
+5. Longitud(cadena) → Usar contador manual
+6. Timer/Temporizador → Usar bucles y contador
+
+// Sistema de puntos
+Respuesta Correcta:  puntosJugador <- puntosJugador + 10
+Usar Pista:         puntosJugador <- puntosJugador - 5
+Pausar Juego:       puntosJugador <- puntosJugador - 5
+Tiempo Agotado:     puntosJugador <- puntosJugador + 0
+
+// Sistema de intentos
+Para i <- 1 Hasta 3 Con Paso 1 Hacer
+    // Intentar login
+    Si correcto Entonces
+        Salir del bucle
+    FinSi
+FinPara

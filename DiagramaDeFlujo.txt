@@ -1,0 +1,97 @@
+┌─────────────────┐
+│     INICIO      │
+└────────┬────────┘
+         │
+         v
+┌─────────────────┐
+│ MenuPrincipal() │
+└────────┬────────┘
+         │
+    ┌────┴────┐
+    │         │
+    v         v
+[Jugar]  [Admin]
+    │         │
+    │         v
+    │  LoginAdministrador()
+    │         │
+    │    ┌────┴────┐
+    │    │         │
+    │    v         v
+    │ [Login]  [Crear]
+    │    │         │
+    │    v         v
+    │ PanelAdmin() CrearAdmin()
+    │    │         │
+    │    v         │
+    │ [CRUD]       │
+    │    │         │
+    │    └────┬────┘
+    │         │
+    v         v
+IngresarNombre()
+    │
+    v
+SeleccionarCategoria()
+    │
+    v
+IniciarJuego()
+    │
+    v
+┌───────────────┐
+│ BUCLE 1 a 6   │
+└───────┬───────┘
+        │
+        v
+MostrarPregunta()
+        │
+   ┌────┴────┐
+   │ Opciones│
+   └────┬────┘
+        │
+   ┌────┼────┬────┐
+   │    │    │    │
+   v    v    v    v
+[Resp][Pista][Pausa][Salir]
+   │    │    │    │
+   │    v    v    v
+   │ [-5pts][-5pts][Confirmar]
+   │    │    │    │
+   └────┴────┴────┘
+        │
+        v
+   [¿Correcta?]
+        │
+   ┌────┴────┐
+   │         │
+   v         v
+ [+10]     [0]
+   │         │
+   └────┬────┘
+        │
+        v
+  [Siguiente]
+        │
+        v
+   [¿Más preguntas?]
+        │
+   ┌────┴────┐
+   │         │
+   v         v
+  SI        NO
+   │         │
+   │         v
+   │  MostrarResultado()
+   │         │
+   └────>────┘
+        │
+        v
+    [¿Jugar?]
+        │
+   ┌────┴────┐
+   │         │
+   v         v
+  SI        NO
+   │         │
+   v         v
+[Menu]     [FIN]
