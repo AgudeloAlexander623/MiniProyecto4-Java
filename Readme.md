@@ -479,8 +479,8 @@ Todos los derechos reservados.
 
 **Estudiante:** Jessid Alexander Agudelo Herrera  
 **Código:** 202478460  
-**Email:** [tu-email@universidad.edu]  
-**GitHub:** [tu-usuario-github]
+**Email:** jessid.agudelo@correounivalle.edu.co
+**GitHub:** AgudeloAlexander623
 
 ---
 
