@@ -10,9 +10,9 @@
 
 **Nombre:** Jessid Alexander Agudelo Herrera  
 **Código de Estudiante:** 202478460  
-**Institución:** [Nombre de tu Universidad]  
-**Programa:** Ingeniería de Sistemas / Ciencias de la Computación  
-**Curso:** Programación Orientada a Objetos  
+**Institución:** Universidad Del Valle  
+**Programa:** Tegnologo En Sistemas  
+**Curso:** Programación Orientada a Eventos  
 **Fecha:** Noviembre 2025
 
 ---
